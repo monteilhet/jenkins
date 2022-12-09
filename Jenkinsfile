@@ -7,6 +7,12 @@ pipeline {
     environment {
       LOG_LEVEL = "TRACE"
       DEBUG = "true"
+      COMMIT = """${sh(
+                returnStdout: true,
+                script: 'git rev-parse HEAD'
+      )}"""
+      SHORT = sh( returnStdout: true,
+                script: 'git rev-parse HEAD | head -c 8')
     }
     stages {
         stage('env') {
@@ -15,10 +21,29 @@ pipeline {
             STEP = "env"
           }
           steps {
-            echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=$STEP"
+           script {
+                currentBuild.description = "Build $SHORT"
+            }
+            echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=$STEP SHORT=$SHORT"
             sh '''
-              echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG"
-              echo 'LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG'
+              echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=$STEP"
+            '''
+            sh '''
+              echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=$STEP SHORT=$SHORT"
+            '''
+          }
+        }
+        stage('next') {
+          environment {
+            STEP = "next"
+          }
+          steps {
+            echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG"
+            sh '''
+              echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=${STEP:-not def}"
+            '''
+            sh '''
+              echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=${STEP:-not def}"
             '''
           }
         }
