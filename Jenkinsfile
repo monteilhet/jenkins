@@ -1,8 +1,12 @@
 pipeline {
     agent any
     parameters {
-              booleanParam( name: 'ci_trigger', defaultValue: false, description: 'trigger ci' )
-              choice (name: 'platform', choices: [ 'test' , 'dev' , 'demo'] , description: 'platform to install')
+      booleanParam( name: 'ci_trigger', defaultValue: false, description: 'trigger ci' )
+      choice (name: 'platform', choices: [ 'test' , 'dev' , 'demo'] , description: 'platform to install')
+      string(name: 'token', defaultValue: 'c34355DDF3dc', description: 'api token')
+      text(name: 'Code', defaultValue: '', description: '''version: 1.0
+type: rs
+retry: 3''')
     }
     environment {
       LOG_LEVEL = "TRACE"
@@ -22,8 +26,10 @@ pipeline {
           }
           steps {
            script {
-                currentBuild.description = "Build $SHORT"
+                currentBuild.description = "Build $GIT_BRANCH $SHORT"
             }
+            echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
+            echo "Running ${BUILD_ID} on ${JENKINS_URL}"
             echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=$STEP SHORT=$SHORT"
             sh '''
               echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=$STEP"
