@@ -1,6 +1,7 @@
 pipeline {
     agent any
     parameters {
+      gitParameter( branchFilter: 'origin/(.*)', defaultValue: 'default', name: 'ref', type: 'PT_TAG')
       booleanParam( name: 'ci_trigger', defaultValue: false, description: 'trigger ci' )
       choice (name: 'platform', choices: [ 'test' , 'dev' , 'demo'] , description: 'platform to install')
       string(name: 'token', defaultValue: 'c34355DDF3dc', description: 'api token')
@@ -90,6 +91,13 @@ retry: 3''')
             }
         }
         // stage creds SERVICE_CREDS = credentials('my-predefined-username-password')
+        stage('Test Git param')
+        {
+            steps {
+                echo "ref ${params.ref}"
+            }
+        }
+
     }
 
 }
