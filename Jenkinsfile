@@ -35,9 +35,13 @@ retry: 3''')
             echo "Env LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=$STEP SHORT=${env.SHORT}"
             sh '''
               echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=$STEP SHORT=$SHORT"
+              echo "trigger=${ci_trigger}"
+              # echo "SHORT=${env.SHORT} ci trigger=${params.ci_trigger}" # cannot use groovy syntax in ''
             '''
             sh """
               echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=$STEP SHORT=$SHORT SHORT=${env.SHORT}"
+              echo "SHORT=${env.SHORT} ci trigger=${params.ci_trigger}"
+              # comment
             """
           }  // sh not bash
         }
@@ -49,16 +53,16 @@ retry: 3''')
             echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG"
             sh '''
               echo 'single quote'
-              [ -z TEST ] && echo TEST not def || echo TEST is defined $TEST
-
               echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=${STEP:-not def} BREAK=${DEF:-default}"
+              [ -z $TEST ] && echo TEST not def || echo TEST is defined $TEST
+              # [[ $ci_trigger == true ]] && echo trigger CI  ### does not support [[
+              export TEST=1
+              [ -z $TEST ] && echo no def || echo TEST exists $TEST
             '''
             sh """
               echo 'double quote'
-              [ -z TEST ] && echo TEST not def || echo TEST is defined
-              [ -z DEF ] && echo no def || echo def exists
-              export DEF=1
               echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG BREAK=${env.DEF}"
+              [[ $ci_trigger == true ]] && echo trigger CI || echo no trigger
             """
           } //  """ does not support BREAK=${DEF:-default}, expand var before shell execution
         }
@@ -83,8 +87,6 @@ retry: 3''')
                 sh 'echo "Service password is $SERVICE_CREDS_PSW"'
                 sh 'echo curl -u $SERVICE_CREDS https://myservice.example.com'
                 sh 'pwd'
-                sh 'echo $SERVICE_CREDS > creds'
-                sh 'cat creds'
             }
         }
         // stage creds SERVICE_CREDS = credentials('my-predefined-username-password')
