@@ -55,7 +55,7 @@ retry: 3''')
             '''
             sh """
               echo 'double quote'
-              [ -z TEST ] && echo TEST not def || echo TEST is defined            
+              [ -z TEST ] && echo TEST not def || echo TEST is defined
               [ -z DEF ] && echo no def || echo def exists
               export DEF=1
               echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG BREAK=${env.DEF}"
@@ -69,6 +69,16 @@ retry: 3''')
                    echo GIT_BRANCH ID $GIT_BRANCH
                    echo branch $(git rev-parse HEAD)
                 '''
+            }
+        }
+        stage('Example Username/Password') {
+            environment {
+                SERVICE_CREDS = credentials('artifactory')
+            }
+            steps {
+                sh 'echo "Service user is $SERVICE_CREDS_USR"'
+                sh 'echo "Service password is $SERVICE_CREDS_PSW"'
+                sh 'curl -u $SERVICE_CREDS https://myservice.example.com'
             }
         }
         // stage creds SERVICE_CREDS = credentials('my-predefined-username-password')
