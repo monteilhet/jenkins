@@ -17,6 +17,7 @@ retry: 3''')
       )}"""
       SHORT = sh( returnStdout: true,
                 script: 'git rev-parse HEAD | head -c 8')
+      JOB_NAME = "demo"
     }
     stages {
         stage('env') {
@@ -30,14 +31,15 @@ retry: 3''')
             }
             echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
             echo "Running ${BUILD_ID} on ${JENKINS_URL}"
-            echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=$STEP SHORT=$SHORT"
-            sh '''
-              echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=$STEP"
-            '''
+            echo "Params ${params.ci_trigger} ${params.platform} $ci_trigger $platform"
+            echo "Env LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=$STEP SHORT=${env.SHORT}"
             sh '''
               echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=$STEP SHORT=$SHORT"
             '''
-          }
+            sh """
+              echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=$STEP SHORT=$SHORT SHORT=${env.SHORT}"
+            """
+          }  // sh not bash
         }
         stage('next') {
           environment {
@@ -46,12 +48,19 @@ retry: 3''')
           steps {
             echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG"
             sh '''
-              echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=${STEP:-not def}"
+              echo 'single quote'
+              [ -z TEST ] && echo TEST not def || echo TEST is defined $TEST
+
+              echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=${STEP:-not def} BREAK=${DEF:-default}"
             '''
-            sh '''
-              echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=${STEP:-not def}"
-            '''
-          }
+            sh """
+              echo 'double quote'
+              [ -z TEST ] && echo TEST not def || echo TEST is defined            
+              [ -z DEF ] && echo no def || echo def exists
+              export DEF=1
+              echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG BREAK=${env.DEF}"
+            """
+          } //  """ does not support BREAK=${DEF:-default}, expand var before shell execution
         }
         stage('git env') {
             steps {
@@ -62,6 +71,7 @@ retry: 3''')
                 '''
             }
         }
+        // stage creds SERVICE_CREDS = credentials('my-predefined-username-password')
     }
 
 }
