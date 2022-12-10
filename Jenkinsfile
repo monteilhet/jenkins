@@ -63,6 +63,9 @@ retry: 3''')
           } //  """ does not support BREAK=${DEF:-default}, expand var before shell execution
         }
         stage('git env') {
+            when {
+                expression { return params.ci_trigger }
+            }
             steps {
                 sh '''
                    echo BUILD_ID $BUILD_ID
@@ -78,7 +81,10 @@ retry: 3''')
             steps {
                 sh 'echo "Service user is $SERVICE_CREDS_USR"'
                 sh 'echo "Service password is $SERVICE_CREDS_PSW"'
-                sh 'curl -u $SERVICE_CREDS https://myservice.example.com'
+                sh 'echo curl -u $SERVICE_CREDS https://myservice.example.com'
+                sh 'pwd'
+                sh 'echo $SERVICE_CREDS > creds'
+                sh 'cat creds'
             }
         }
         // stage creds SERVICE_CREDS = credentials('my-predefined-username-password')
