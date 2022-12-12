@@ -42,13 +42,14 @@ retry: 3''')
             sh """
               echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=$STEP SHORT=$SHORT SHORT=${env.SHORT}"
               echo "SHORT=${env.SHORT} ci trigger=${params.ci_trigger}"
-              # comment
+              # comment is ok and can use groovy syntax in double quote sh, jenkins expand variable before shell execution
             """
-          }  // sh not bash
+          }  // sh is not bash !
         }
         stage('next') {
           environment {
             STEP = "next"
+            PATH = "${env.PATH}:/usr/local/bin/go"
           }
           steps {
             echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG"
@@ -56,7 +57,7 @@ retry: 3''')
               echo 'single quote'
               echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG STEP=${STEP:-not def} BREAK=${DEF:-default}"
               [ -z $TEST ] && echo TEST not def || echo TEST is defined $TEST
-              # [[ $ci_trigger == true ]] && echo trigger CI  ### does not support [[
+              # [[ $ci_trigger == true ]] && echo trigger CI  ### single quote shell does not support [[
               export TEST=1
               [ -z $TEST ] && echo no def || echo TEST exists $TEST
             '''
@@ -65,7 +66,8 @@ retry: 3''')
               echo "LOG_LEVEL=$LOG_LEVEL DEBUG=$DEBUG BREAK=${env.DEF}"
               [[ $ci_trigger == true ]] && echo trigger CI || echo no trigger
             """
-          } //  """ does not support BREAK=${DEF:-default}, expand var before shell execution
+            sh 'printenv'
+          } //  """ does not support BREAK=${DEF:-default}, NB jenkins expand var before shell execution
         }
         stage('git env') {
             when {
@@ -90,11 +92,36 @@ retry: 3''')
                 sh 'pwd'
             }
         }
+        stage('setenv') {
+            steps {
+                script { // set global variable
+                  env.NEW = sh( returnStdout: true,
+                  script: 'echo 1.x')
+                }
+                sh 'export NEW=1.0 ; echo ${NEW}'
+                sh 'echo ${NEW:-nodef}'
+                sh 'echo $SHELL ; bash --version'
+                // sh 'if [[ $NEW == 1.x ]] ; then  echo ok $NEW ; else echo invalid ; fi'
+            }
+        }
+        stage('test') {
+          steps {
+             script{  // test another way to set variable usabe in shell
+                def variable = true
+                sh """
+                echo ${variable}
+                echo NEW $NEW
+                """
+                // sh 'echo ${variable}'
+            }
+          }
+        }
         // stage creds SERVICE_CREDS = credentials('my-predefined-username-password')
         stage('Test Git param')
         {
             steps {
                 echo "ref ${params.ref}"
+                sh 'printenv'
             }
         }
 
