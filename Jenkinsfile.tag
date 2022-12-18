@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    triggers {
+        pollSCM('*/2 * * * *')
+    }
     parameters {
       gitParameter( branchFilter: 'origin/(.*)', defaultValue: 'default', name: 'ref', type: 'PT_TAG')
     }
@@ -26,8 +29,8 @@ pipeline {
         }
         steps {
             script {
-                env.NREF = sh( returnStdout: true, script: 'if [ $ref == default ] ; then echo $GIT_BRANCH ; else echo "tags/$ref" ; fi' ) 
-                env.BUILD_MSG = sh( returnStdout: true, script: 'if [ $ref == default ] ; then echo -n " automatically triggered by " ; else echo -n "" ; fi')
+                env.NREF = sh( returnStdout: true, script: 'echo "tags/$ref"' ) 
+                env.BUILD_MSG = sh( returnStdout: true, script: '[ $ref == default ] && echo -n " automatically triggered by " || echo -n ""')
                 currentBuild.description = "BUILD_REF: build $BUILD_MSG using $GIT_BRANCH $SHORT"
             }
             sh '''
