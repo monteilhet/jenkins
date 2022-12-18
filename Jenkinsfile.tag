@@ -30,7 +30,7 @@ pipeline {
         steps {
             script {
                 env.NREF = sh( returnStdout: true, script: 'echo "tags/$ref"' ) 
-                env.BUILD_MSG = sh( returnStdout: true, script: '[ $ref == default ] && echo -n " automatically triggered by " || echo -n ""')
+                env.BUILD_MSG = sh( returnStdout: true, script: 'echo $ref ; [ def == default ] && echo -n " automatically triggered by " || echo -n ""')
                 currentBuild.description = "BUILD_REF: build $BUILD_MSG using $GIT_BRANCH $SHORT"
             }
             sh '''
