@@ -28,9 +28,10 @@ pipeline {
             PATH = "${env.PATH}:/usr/local/go/bin"
         }
         steps {
+           // 'if [ "$ref" != default ] ; then echo "tags/$ref" ; else echo ${GIT_BRANCH#refs/} ; fi' 
             script {
                 env.NREF = sh( returnStdout: true, script: 'echo "tags/$ref"' ) 
-                env.BUILD_MSG = sh( returnStdout: true, script: 'echo $ref ; [ def == default ] && echo -n " automatically triggered by " || echo -n ""')
+                env.BUILD_MSG = sh( returnStdout: true, script: 'test $ref == default && echo -n " automatically triggered by " || echo -n ""')
                 currentBuild.description = "BUILD_REF: build $BUILD_MSG using $GIT_BRANCH $SHORT"
             }
             sh '''
