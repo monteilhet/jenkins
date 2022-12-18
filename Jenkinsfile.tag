@@ -26,14 +26,14 @@ pipeline {
         }
         steps {
             script {
-                env.REF = sh( returnStdout: true, script: 'if [ "$ref" == default ] ; then echo $GIT_BRANCH ; else echo "tags/$ref" ; fi' ) 
-                env.BUILD_MSG = sh( returnStdout: true, script: 'if [ "$ref" == default ] ; then echo -n " automatically triggered by " ; else echo -n "" ; fi')
+                env.NREF = sh( returnStdout: true, script: 'if [ $ref == default ] ; then echo $GIT_BRANCH ; else echo "tags/$ref" ; fi' ) 
+                env.BUILD_MSG = sh( returnStdout: true, script: 'if [ $ref == default ] ; then echo -n " automatically triggered by " ; else echo -n "" ; fi')
                 currentBuild.description = "BUILD_REF: build $BUILD_MSG using $GIT_BRANCH $SHORT"
             }
             sh '''
                 printenv
-                echo "PATH is $PATH GIT_BRANCH $GIT_BRANCH REF=$REF"
-                ./deliver.sh
+                echo "PATH is $PATH GIT_BRANCH $GIT_BRANCH REF=$NREF"
+                REF=$NREF ./deliver.sh
             '''
         }
       }
