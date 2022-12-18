@@ -12,7 +12,7 @@ pipeline {
       {
             steps {
                 sh '''
-                  if [[ $ref != default ]] ; then
+                  if [ $ref != default ] ; then
                     git checkout $ref
                     git rev-parse HEAD
                   fi
@@ -27,7 +27,7 @@ pipeline {
             sh '''
                 printenv
                 echo "PATH is $PATH GIT_BRANCH $GIT_BRANCH"
-                REF=1 ./deliver_tag.sh
+                REF=1 ./deliver.sh
             '''
         }
       }
