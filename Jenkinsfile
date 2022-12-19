@@ -29,7 +29,7 @@ retry: 3''')
           steps {
             script {
                 env.BUILD_MSG = sh( returnStdout: true, 
-                script: '[ $ci_trigger == true ] && echo -n "triggered by Build CI" || echo -n ""')
+                script: '[ $ci_trigger == true ] && echo -n "triggered by Build CI" || echo -n "manual"')
                 currentBuild.description = "BUILD_REF: build $BUILD_MSG using $GIT_BRANCH $SHORT"
             }
             echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
