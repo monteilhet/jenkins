@@ -27,8 +27,10 @@ retry: 3''')
             STEP = "env"
           }
           steps {
-           script {
-                currentBuild.description = "Build $GIT_BRANCH $SHORT"
+            script {
+                env.BUILD_MSG = sh( returnStdout: true, 
+                script: '[ $ci_trigger == true ] && echo -n "triggered by Build CI" || echo -n ""')
+                currentBuild.description = "BUILD_REF: build $BUILD_MSG using $GIT_BRANCH $SHORT"
             }
             echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
             echo "Running ${BUILD_ID} on ${JENKINS_URL}"

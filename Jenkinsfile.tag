@@ -33,11 +33,8 @@ pipeline {
                 env.NREF = sh( returnStdout: true, script: 'echo "tags/$ref"' ) 
                 env.BUILD_MSG = sh( returnStdout: true, script: '''
                   set +xv
-                  if test $SHORT == default ; then 
-                    echo -n " automatically triggered by "
-                  else
-                    echo -n ""
-                  fi  
+                  echo test
+                  uname
                   ''')
                 currentBuild.description = "BUILD_REF: build $BUILD_MSG using $GIT_BRANCH $SHORT"
             }
