@@ -28,8 +28,14 @@ pipeline {
             PATH = "${env.PATH}:/usr/local/go/bin"
         }
         steps {
-             // 'if [ "$ref" != default ] ; then echo "tags/$ref" ; else echo ${GIT_BRANCH#refs/} ; fi' 
-            //  alternative test condition in groovy
+            // NB using agent any minimal shell does not support [ operator
+            // script {
+            //     env.EGIT_BRANCH = sh( returnStdout: true, script: 'if [ "$ref" != default ] ; then echo "tags/$ref" ; else echo ${GIT_BRANCH#refs/} ; fi' ) 
+            //     env.EREF = sh( returnStdout: true, script: 'if [ "$ref" == default ] ; then echo $EGIT_BRANCH ; else echo "tags/$ref" ; fi' ) 
+            //     env.BUILD_MSG = sh( returnStdout: true, script: 'if [ "$ref" == default ] ; then echo -n " automatically triggered by " ; else echo -n " manually" ; fi')
+            //     currentBuild.description = "BUILD_REF: build $BUILD_MSG using $GIT_BRANCH $SHORT"
+            // }
+            //  alternative use test condition in groovy
               script {
               if ( params.ref == "default") {
                 env.EGIT_BRANCH = sh( returnStdout: true, script: 'echo ${GIT_BRANCH#refs/}' ) 
