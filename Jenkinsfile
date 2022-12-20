@@ -27,11 +27,9 @@ retry: 3''')
             STEP = "env"
           }
           steps {
-            // script {
-            //     env.BUILD_MSG = sh( returnStdout: true, 
-            //     script: '[ $ci_trigger == true ] && echo -n "triggered by Build CI" || echo -n "manual"')
-            //     currentBuild.description = "BUILD_REF: build $BUILD_MSG using $GIT_BRANCH $SHORT"
-            // }
+           script {
+                currentBuild.description = "Build $GIT_BRANCH $SHORT"
+            }
             echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
             echo "Running ${BUILD_ID} on ${JENKINS_URL}"
             echo "Params ${params.ci_trigger} ${params.platform} $ci_trigger $platform"
@@ -108,7 +106,7 @@ retry: 3''')
         }
         stage('test') {
           steps {
-             script{  // test another way to set variable usabe in shell
+             script{  // test another way to set variable usable in shell
                 def variable = true
                 sh """
                 echo ${variable}
