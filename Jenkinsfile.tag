@@ -28,20 +28,25 @@ pipeline {
             PATH = "${env.PATH}:/usr/local/go/bin"
         }
         steps {
-           // 'if [ "$ref" != default ] ; then echo "tags/$ref" ; else echo ${GIT_BRANCH#refs/} ; fi' 
-            script {
-                env.NREF = sh( returnStdout: true, script: 'echo "tags/$ref"' ) 
-                env.BUILD_MSG = sh( returnStdout: true, script: '''
-                  set +xv
-                  echo test
-                  uname
-                  ''')
-                currentBuild.description = "BUILD_REF: build $BUILD_MSG using $GIT_BRANCH $SHORT"
-            }
+             // 'if [ "$ref" != default ] ; then echo "tags/$ref" ; else echo ${GIT_BRANCH#refs/} ; fi' 
+            //  alternative test condition in groovy
+              script {
+              if ( params.ref == "default") {
+                env.EGIT_BRANCH = sh( returnStdout: true, script: 'echo ${GIT_BRANCH#refs/}' ) 
+                env.EREF = env.EGIT_BRANCH
+                currentBuild.description = "BUILD_REF: build automatically triggered using $GIT_BRANCH $SHORT"
+              }
+              else
+              {
+                env.EGIT_BRANCH = sh( returnStdout: true, script: 'echo "tags/$ref"' )
+                env.EREF = env.EGIT_BRANCH
+                currentBuild.description = "BUILD_REF: build manually triggered using $GIT_BRANCH $SHORT"
+              }
+              }
             sh '''
                 printenv
-                echo "PATH is $PATH GIT_BRANCH $GIT_BRANCH REF=$NREF"
-                REF=$NREF ./deliver.sh
+                echo "PATH is $PATH GIT_BRANCH $EGIT_BRANCH REF=$EREF"
+                REF=$EREF ./deliver.sh
             '''
         }
       }
